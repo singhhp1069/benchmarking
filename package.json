@@ -1,0 +1,33 @@
+{
+  "name": "benckmarking",
+  "version": "4.0.0",
+  "description": "Node.js app ",
+  "author": "Har Preet Singh",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "generate": "node src/generate.js",
+    "prod": "node src/app.js",
+    "start": "npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "arangojs": "^5.8.0",
+    "async": "^2.6.0",
+    "body-parser": "^1.15.2",
+    "csv-export": "^1.0.1",
+    "express": "^4.13.3",
+    "fs": "0.0.1-security",
+    "iconv": "^2.3.0",
+    "neo4j": "^2.0.0-RC2",
+    "path": "^0.12.7",
+    "randomstring": "^1.1.5",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "underscore": "^1.8.3",
+    "util": "^0.10.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}
