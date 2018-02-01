@@ -1,39 +1,191 @@
 var express = require('express');
 var app = express();
 var arangodb = require('../controller/arg');
-// var neo4j = require('./neo4j');
+var neo4j = require('../controller/neo4j');
 var operations = require('../controller/operations');
-var randomstring = require("randomstring");
 var testRuns = [];
-var randomDB= randomstring.generate();
-var posTests = -1;
+var process_tick = -1;
+var rendergraph= require('../controller/rendergraph');
+const path = require('path');
+const fs = require('fs');
+
+app.get('/',function(req,res){
+	rendergraph.resetgraphdata();
+	testRuns = [];
+	process_tick = -1;
+	//ArangoCombined
+	testRuns.push(function (resolve, reject) { operations.createCollection(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.saveCategories(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.saveDocument(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.fetchDocuments(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.bulkImport(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.deleteAllDocuments(arangodb,resolve, reject); });
+	
+	//Neo4JCombined
+	testRuns.push(function (resolve, reject) { operations.createCollection(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.saveCategories(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.saveDocument(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.fetchDocuments(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.bulkImport(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.deleteAllDocuments(neo4j,resolve, reject); });
 
 
-// arangodb.createDB(randomDB,function(res){
-// 	console.log("new db : "+randomDB + " :is "+JSON.stringify(res));
-// });
-
-app.get('/generate',function(req,res){
+	testRuns.push(function (resolve, reject) {
+		 	 rendergraph.getgraphdata(function(result){
+				rendergraph.getHTMLCombined('ArangoDB VS Neo4j Report',1,result,function(response){
+					fs.writeFile(path.join(__dirname,"../public/index.html"), response, function(err) {
+						    if(err) {
+						        return console.log(err);
+						    }
+						     res.sendFile(path.join(__dirname, "../public/index.html"));
+						}); 	
+					});
+				});
+			 });
+	executeTest();	
 	
 });
 
 
-
-var collection = 'route';
-
-var bulkdata = [{_key: 'firstDocument',a: 'foo111',b: 'bar111',c: Date()},
-				{_key: 'firstDocument1',a: 'foo111',b: 'bar111',c: Date()},
-				{_key: 'firstDocument2',a: 'foo111',b: 'bar111',c: Date()},
-				{_key: 'firstDocument3',a: 'foo111',b: 'bar111',c: Date()},
-				{_key: 'firstDocument4',a: 'foo111',b: 'bar111',c: Date()},
-				,{_key: 'firstDocument5',a: 'foo111',b: 'bar111',c: Date()}];
-
-
-app.get('/bulkUploading',function(req,res){
+app.get('/throughput',function(req,res){
+	rendergraph.resetgraphdata();
 	testRuns = [];
-	posTests = -1;
-	testRuns.push(function (resolve, reject) { operations.bulkUploading(arangodb, collection,bulkdata, resolve, reject); });
-	executeTest();
+	process_tick = -1;
+	//ArangoCombined
+	testRuns.push(function (resolve, reject) { operations.createCollection(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.saveCategories(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.saveDocument(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.fetchDocuments(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.bulkImport(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.deleteAllDocuments(arangodb,resolve, reject); });
+	
+	//Neo4JCombined
+	testRuns.push(function (resolve, reject) { operations.createCollection(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.saveCategories(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.saveDocument(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.fetchDocuments(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.bulkImport(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.deleteAllDocuments(neo4j,resolve, reject); });
+
+
+	testRuns.push(function (resolve, reject) {
+		 	 rendergraph.getgraphdata(function(result){
+				rendergraph.getHTMLCombined('ArangoDB VS Neo4j Report',0,result,function(response){
+					fs.writeFile(path.join(__dirname,"../public/index.html"), response, function(err) {
+						    if(err) {
+						        return console.log(err);
+						    }
+						     res.sendFile(path.join(__dirname, "../public/index.html"));
+						}); 	
+					});
+				});
+			 });
+	executeTest();	
+	
+});
+
+app.get('/arangodb',function(req,res){
+	rendergraph.resetgraphdata();
+	testRuns = [];
+	process_tick = -1;
+	testRuns.push(function (resolve, reject) { operations.createCollection(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.saveCategories(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.saveDocument(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.fetchDocuments(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.bulkImport(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.deleteAllDocuments(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) {
+		 	 rendergraph.getgraphdata(function(result){
+				rendergraph.getHTML('ArangoDB Report',1,result,function(response){
+					fs.writeFile(path.join(__dirname,"../public/index.html"), response, function(err) {
+						    if(err) {
+						        return console.log(err);
+						    }
+						     res.sendFile(path.join(__dirname, "../public/index.html"));
+						}); 	
+					});
+				});
+			 });
+	executeTest();	
+
+	
+});
+
+
+app.get('/arangodb/throughput',function(req,res){
+	rendergraph.resetgraphdata();
+	testRuns = [];
+	process_tick = -1;
+	testRuns.push(function (resolve, reject) { operations.createCollection(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.saveCategories(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.saveDocument(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.fetchDocuments(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.bulkImport(arangodb,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.deleteAllDocuments(arangodb,resolve, reject); });
+	testRuns.push(function (resolve, reject) {
+		 	 rendergraph.getgraphdata(function(result){
+				rendergraph.getHTML('ArangoDB Report',0,result,function(response){
+					fs.writeFile(path.join(__dirname,"../public/index.html"), response, function(err) {
+						    if(err) {
+						        return console.log(err);
+						    }
+						     res.sendFile(path.join(__dirname, "../public/index.html"));
+						}); 	
+					});
+				});
+			 });
+	executeTest();	
+	
+});
+
+app.get('/neo4j',function(req,res){
+	rendergraph.resetgraphdata();
+	testRuns = [];
+	process_tick = -1;
+	testRuns.push(function (resolve, reject) { operations.createCollection(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.saveCategories(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.saveDocument(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.fetchDocuments(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.bulkImport(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.deleteAllDocuments(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) {
+		 	 rendergraph.getgraphdata(function(result){
+				rendergraph.getHTML('Neo4j Report',1,result,function(response){
+					fs.writeFile(path.join(__dirname,"../public/index.html"), response, function(err) {
+						    if(err) {
+						        return console.log(err);
+						    }
+						     res.sendFile(path.join(__dirname, "../public/index.html"));
+						}); 	
+					});
+				});
+			 });
+	executeTest();	
+});
+
+app.get('/neo4j/throughput',function(req,res){
+	rendergraph.resetgraphdata();
+	testRuns = [];
+	process_tick = -1;
+	testRuns.push(function (resolve, reject) { operations.createCollection(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.saveCategories(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.saveDocument(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) { operations.fetchDocuments(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.bulkImport(neo4j,resolve, reject); });	
+	testRuns.push(function (resolve, reject) { operations.deleteAllDocuments(neo4j,resolve, reject); });
+	testRuns.push(function (resolve, reject) {
+		 	 rendergraph.getgraphdata(function(result){
+				rendergraph.getHTML('Neo4j Report',0,result,function(response){
+					fs.writeFile(path.join(__dirname,"../public/index.html"), response, function(err) {
+						    if(err) {
+						        return console.log(err);
+						    }
+						     res.sendFile(path.join(__dirname, "../public/index.html"));
+						}); 	
+					});
+				});
+			 });
+	executeTest();	
 });
 
 
@@ -43,13 +195,9 @@ function reportError(err) {
 }
 
 function executeTest() {
-  testRuns[++posTests](function () {
-    process.nextTick(executeTest);
-  }, reportError);
+		  testRuns[++process_tick]( function () {
+					process.nextTick(executeTest);
+		}, reportError);
 }
-
-
-// app.use('/arangodb',arangodb);
-// app.use('/neo4j',neo4j);
 
 module.exports = app;
